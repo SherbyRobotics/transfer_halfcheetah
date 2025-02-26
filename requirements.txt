@@ -1,0 +1,6 @@
+numpy
+matplotlib
+gymnasium[mujoco]
+stable_baselines3
+huggingface_sb3
+pipoli @ git+https://github.com/SherbyRobotics/pipoli
