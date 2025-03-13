@@ -13,12 +13,12 @@ The transfer is done using [Pipoli](https://github.com/SherbyRobotics/pipoli).
    python3 -m venv .venv && . .venv/bin/activate
    ```
 
-3. Install the requirements
+3. Install the requirements.
    ```sh
    python3 -m pip install -r requirements.txt
    ```
 
 4. Run!
-   ```
+   ```sh
    python3 transfer.py
    ```

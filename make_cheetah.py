@@ -1,7 +1,7 @@
 from pathlib import Path
 import numpy as np
 
-HALF_CHEETAH = """<!-- Cheetah Model
+HALF_CHEETAH = """<!-- Generated Cheetah Model
 
     The state space is populated with joints in the order that they are
     defined in this file. The actuators also operate on joints.
@@ -43,7 +43,7 @@ HALF_CHEETAH = """<!-- Cheetah Model
     <motor ctrllimited="true" ctrlrange="-{taumax:.3f} {taumax:.3f}"/>
   </default>
   <size nstack="300000" nuser_geom="1"/>
-  <option gravity="0 0 -{g:.3f}" timestep="0.01"/>
+  <option gravity="0 0 -{g:.3f}" timestep="{dt}"/>
   <asset>
     <texture builtin="gradient" height="100" rgb1="1 1 1" rgb2="0 0 0" type="skybox" width="100"/>
     <texture builtin="flat" height="1278" mark="cross" markrgb="1 1 1" name="texgeom" random="0.01" rgb1="0.8 0.6 0.4" rgb2="0.8 0.6 0.4" type="cube" width="127"/>
@@ -55,7 +55,7 @@ HALF_CHEETAH = """<!-- Cheetah Model
     <light cutoff="100" diffuse="1 1 1" dir="-0 0 -1.3" directional="true" exponent="1" pos="0 0 1.3" specular=".1 .1 .1"/>
     <geom conaffinity="1" condim="3" material="MatPlane" name="floor" pos="0 0 0" rgba="0.8 0.9 0.8 1" size="40 40 40" type="plane"/>
     <body name="torso" pos="0 0 .7">
-      <camera name="track" mode="trackcom" pos="0 -3 0.3" xyaxes="1 0 0 0 0 1"/>
+      <camera name="track" mode="trackcom" pos="0 -{cam} 0.3" xyaxes="1 0 0 0 0 1"/>
       <joint armature="0" axis="1 0 0" damping="0" limited="false" name="rootx" pos="0 0 0" stiffness="0" type="slide"/>
       <joint armature="0" axis="0 0 1" damping="0" limited="false" name="rootz" pos="0 0 0" stiffness="0" type="slide"/>
       <joint armature="0" axis="0 1 0" damping="0" limited="false" name="rooty" pos="0 0 0" stiffness="0" type="hinge"/>
@@ -98,14 +98,18 @@ HALF_CHEETAH = """<!-- Cheetah Model
   </actuator>
 </mujoco>"""
 
-def make_cheetah_xml(context, name="context") -> str:
+def make_cheetah_xml(context, name="context", outdir="./output") -> str:
+    output = Path(outdir)
+    output.mkdir(exist_ok=True)
+
     cheetah_xml_content = make_cheetah(context)
-    cheetah_xml = Path(f"./output/cheetah-{name}.xml")
+    cheetah_xml = output / f"cheetah-{name}.xml"
     cheetah_xml.write_text(cheetah_xml_content)
 
     return str(cheetah_xml.absolute())
 
 def make_cheetah(context):
+    dt = context.value("dt")
     m = context.value("m")
     g = context.value("g")
     taumax = context.value("taumax")
@@ -167,6 +171,8 @@ def make_cheetah(context):
     ffoot_geom_pos_z = (r + l5) * np.cos(-0.6 - np.pi)
 
     return HALF_CHEETAH.format(
+        cam=3 * L / .5,
+        dt=dt,
         m=m, g=g, taumax=taumax,
         L=L, Lh=Lh,
         l0=l0, l1=l1, l2=l2, l3=l3, l4=l4, l5=l5,

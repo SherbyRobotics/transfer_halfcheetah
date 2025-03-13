@@ -72,20 +72,6 @@ original_policy = DimensionalPolicy(
     act_dims=[M*L**2/T**2] * 6
 )
 
-## Test of original policy in the original context
-
-# env = gym.make("HalfCheetah-v5", xml_file="./lol-cheetah.xml", render_mode="human")
-# env = gym.make("HalfCheetah-v5", xml_file=cheetah_file, render_mode="human")
-# obs, _ = env.reset()
-
-# for _ in range(1000):
-#     act = original_policy.action(obs)
-#     obs, _, _, trunc, _ = env.step(act)
-#     if trunc:
-#         obs, _ = env.reset()
-
-# env.close()
-
 ## Test scaled policy in a new scaled context
 
 base = ["m", "L", "g"]
@@ -100,7 +86,7 @@ new_cheetah_file = make_cheetah_xml(new_context, "new")
 
 new_policy = original_policy.to_scaled(new_context, base)
 
-env = gym.make("HalfCheetah-v5", xml_file=new_cheetah_file, render_mode="human")
+env = gym.make("HalfCheetah-v5", xml_file=new_cheetah_file, render_mode="human", frame_skip=2)
 obs, _ = env.reset()
 
 for _ in range(1000):

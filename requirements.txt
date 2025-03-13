@@ -1,5 +1,8 @@
 numpy
 matplotlib
+tqdm
+ipykernel
+ipywidgets
 gymnasium[mujoco]
 stable_baselines3
 huggingface_sb3
