@@ -36,14 +36,14 @@ HALF_CHEETAH = """<!-- Generated Cheetah Model
 
 -->
 <mujoco model="cheetah">
-  <compiler angle="radian" coordinate="local" inertiafromgeom="true" settotalmass="{m:.3f}"/>
+  <compiler angle="radian" coordinate="local" inertiafromgeom="true" settotalmass="{m}"/>
   <default>
     <joint armature=".1" damping=".01" limited="true" solimplimit="0 .8 .03" solreflimit=".02 1" stiffness="8"/>
     <geom conaffinity="0" condim="3" contype="1" friction=".4 .1 .1" rgba="0.8 0.6 .4 1" solimp="0.0 0.8 0.01" solref="0.02 1"/>
-    <motor ctrllimited="true" ctrlrange="-{taumax:.3f} {taumax:.3f}"/>
+    <motor ctrllimited="true" ctrlrange="-{taumax} {taumax}"/>
   </default>
   <size nstack="300000" nuser_geom="1"/>
-  <option gravity="0 0 -{g:.3f}" timestep="{dt}"/>
+  <option gravity="0 0 -{g}" timestep="{dt}"/>
   <asset>
     <texture builtin="gradient" height="100" rgb1="1 1 1" rgb2="0 0 0" type="skybox" width="100"/>
     <texture builtin="flat" height="1278" mark="cross" markrgb="1 1 1" name="texgeom" random="0.01" rgb1="0.8 0.6 0.4" rgb2="0.8 0.6 0.4" type="cube" width="127"/>
@@ -54,35 +54,36 @@ HALF_CHEETAH = """<!-- Generated Cheetah Model
   <worldbody>
     <light cutoff="100" diffuse="1 1 1" dir="-0 0 -1.3" directional="true" exponent="1" pos="0 0 1.3" specular=".1 .1 .1"/>
     <geom conaffinity="1" condim="3" material="MatPlane" name="floor" pos="0 0 0" rgba="0.8 0.9 0.8 1" size="40 40 40" type="plane"/>
-    <body name="torso" pos="0 0 .7">
+    <body name="torso" pos="0 0 {torso_pos_z}">
       <camera name="track" mode="trackcom" pos="0 -{cam} 0.3" xyaxes="1 0 0 0 0 1"/>
+      <!-- <camera name="track" mode="trackcom" pos="0 -3 0.3" xyaxes="1 0 0 0 0 1"/> -->
       <joint armature="0" axis="1 0 0" damping="0" limited="false" name="rootx" pos="0 0 0" stiffness="0" type="slide"/>
       <joint armature="0" axis="0 0 1" damping="0" limited="false" name="rootz" pos="0 0 0" stiffness="0" type="slide"/>
       <joint armature="0" axis="0 1 0" damping="0" limited="false" name="rooty" pos="0 0 0" stiffness="0" type="hinge"/>
-      <geom fromto="-{L:.3f} 0 0 {L:.3f} 0 0" name="torso" size="0.046" type="capsule"/>
-      <geom axisangle="0 1 0 .87" name="head" pos="{head_pos_x:.3f} 0 .1" size="0.046 {Lh:.3f}" type="capsule"/>
+      <geom fromto="-{L} 0 0 {L} 0 0" name="torso" size="{d}" type="capsule"/>
+      <geom axisangle="0 1 0 .87" name="head" pos="{head_pos_x} 0 {head_pos_z}" size="{d} {Lh}" type="capsule"/>
       <!-- <site name='tip'  pos='.15 0 .11'/>-->
-      <body name="bthigh" pos="{bthight_pos_x:.3f} 0 0">
-        <joint axis="0 1 0" damping="{b0:.3f}" name="bthigh" pos="0 0 0" range="-.52 1.05" stiffness="{k0:.3f}" type="hinge"/>
-        <geom axisangle="0 1 0 -3.8" name="bthigh" pos="{bthight_geom_pos_x:.3f} 0 {bthight_geom_pos_z:.3f}" size="0.046 {l0:.3f}" type="capsule"/>
-        <body name="bshin" pos="{bshin_pos_x:.3f} 0 {bshin_pos_z:.3f}">
-          <joint axis="0 1 0" damping="{b1:.3f}" name="bshin" pos="0 0 0" range="-.785 .785" stiffness="{k1:.3f}" type="hinge"/>
-          <geom axisangle="0 1 0 -2.03" name="bshin" pos="{bshin_geom_pos_x:.3f} 0 {bshin_geom_pos_z:.3f}" rgba="0.9 0.6 0.6 1" size="0.046 {l1:.3f}" type="capsule"/>
-          <body name="bfoot" pos="{bfoot_pos_x:.3f} 0 {bfoot_pos_z:.3f}">
-            <joint axis="0 1 0" damping="{b2:.3f}" name="bfoot" pos="0 0 0" range="-.4 .785" stiffness="{k2:.3f}" type="hinge"/>
-            <geom axisangle="0 1 0 -.27" name="bfoot" pos="{bfoot_geom_pos_x:.3f} 0 {bfoot_geom_pos_z:.3f}" rgba="0.9 0.6 0.6 1" size="0.046 {l2:.3f}" type="capsule"/>
+      <body name="bthigh" pos="{bthight_pos_x} 0 0">
+        <joint axis="0 1 0" damping="{b0}" name="bthigh" pos="0 0 0" range="-.52 1.05" stiffness="{k0}" type="hinge"/>
+        <geom axisangle="0 1 0 -3.8" name="bthigh" pos="{bthight_geom_pos_x} 0 {bthight_geom_pos_z}" size="{d} {l0}" type="capsule"/>
+        <body name="bshin" pos="{bshin_pos_x} 0 {bshin_pos_z}">
+          <joint axis="0 1 0" damping="{b1}" name="bshin" pos="0 0 0" range="-.785 .785" stiffness="{k1}" type="hinge"/>
+          <geom axisangle="0 1 0 -2.03" name="bshin" pos="{bshin_geom_pos_x} 0 {bshin_geom_pos_z}" rgba="0.9 0.6 0.6 1" size="{d} {l1}" type="capsule"/>
+          <body name="bfoot" pos="{bfoot_pos_x} 0 {bfoot_pos_z}">
+            <joint axis="0 1 0" damping="{b2}" name="bfoot" pos="0 0 0" range="-.4 .785" stiffness="{k2}" type="hinge"/>
+            <geom axisangle="0 1 0 -.27" name="bfoot" pos="{bfoot_geom_pos_x} 0 {bfoot_geom_pos_z}" rgba="0.9 0.6 0.6 1" size="{d} {l2}" type="capsule"/>
           </body>
         </body>
       </body>
-      <body name="fthigh" pos="{fthight_pos_x:.3f} 0 0">
-        <joint axis="0 1 0" damping="{b3:.3f}" name="fthigh" pos="0 0 0" range="-1 .7" stiffness="{k3:.3f}" type="hinge"/>
-        <geom axisangle="0 1 0 .52" name="fthigh" pos="{fthight_geom_pos_x:.3f} 0 {fthight_geom_pos_z:.3f}" size="0.046 {l3:.3f}" type="capsule"/>
-        <body name="fshin" pos="{fshin_pos_x:.3f} 0 {fshin_pos_z:.3f}">
-          <joint axis="0 1 0" damping="{b4:.3f}" name="fshin" pos="0 0 0" range="-1.2 .87" stiffness="{k4}" type="hinge"/>
-          <geom axisangle="0 1 0 -.6" name="fshin" pos="{fshin_geom_pos_x:.3f} 0 {fshin_geom_pos_z:.3f}" rgba="0.9 0.6 0.6 1" size="0.046 {l4:.3f}" type="capsule"/>
-          <body name="ffoot" pos="{ffoot_pos_x:.3f} 0 {ffoot_pos_z:.3f}">
-            <joint axis="0 1 0" damping="{b5:.3f}" name="ffoot" pos="0 0 0" range="-.5 .5" stiffness="{k5:.3f}" type="hinge"/>
-            <geom axisangle="0 1 0 -.6" name="ffoot" pos="{ffoot_geom_pos_x:.3f} 0 {ffoot_geom_pos_z:.3f}" rgba="0.9 0.6 0.6 1" size="0.046 {l5:.3f}" type="capsule"/>
+      <body name="fthigh" pos="{fthight_pos_x} 0 0">
+        <joint axis="0 1 0" damping="{b3}" name="fthigh" pos="0 0 0" range="-1 .7" stiffness="{k3}" type="hinge"/>
+        <geom axisangle="0 1 0 .52" name="fthigh" pos="{fthight_geom_pos_x} 0 {fthight_geom_pos_z}" size="{d} {l3}" type="capsule"/>
+        <body name="fshin" pos="{fshin_pos_x} 0 {fshin_pos_z}">
+          <joint axis="0 1 0" damping="{b4}" name="fshin" pos="0 0 0" range="-1.2 .87" stiffness="{k4}" type="hinge"/>
+          <geom axisangle="0 1 0 -.6" name="fshin" pos="{fshin_geom_pos_x} 0 {fshin_geom_pos_z}" rgba="0.9 0.6 0.6 1" size="{d} {l4}" type="capsule"/>
+          <body name="ffoot" pos="{ffoot_pos_x} 0 {ffoot_pos_z}">
+            <joint axis="0 1 0" damping="{b5}" name="ffoot" pos="0 0 0" range="-.5 .5" stiffness="{k5}" type="hinge"/>
+            <geom axisangle="0 1 0 -.6" name="ffoot" pos="{ffoot_geom_pos_x} 0 {ffoot_geom_pos_z}" rgba="0.9 0.6 0.6 1" size="{d} {l5}" type="capsule"/>
           </body>
         </body>
       </body>
@@ -138,48 +139,54 @@ def make_cheetah(context):
     b4 = context.value("b4")
     b5 = context.value("b5")
 
-    r = 0.046 / 2
+    d = context.value("d")
+    r = d / 2
 
-    head_pos_x = L + Lh * np.sin(0.87)
+    head_pos_x = L / 0.5 * 0.6
+    head_pos_z = d / 0.046 * 0.1
 
     bthight_pos_x = -L
-    bthight_geom_pos_x = (r+l0) * np.sin(-3.8)
-    bthight_geom_pos_z = (r+l0) * np.cos(-3.8)
+    bthight_geom_pos_x = (r+l0) / (0.046/2 + 0.145) * 0.1
+    bthight_geom_pos_z = (r+l0) / (0.046/2 + 0.145) * -0.13
 
-    bshin_pos_x = (-r + 2*l0) * np.sin(-3.8)
-    bshin_pos_z = (r + 2*l0) * np.cos(-3.8)
-    bshin_geom_pos_x = (r/2 + l1) * np.sin(-2.03)
-    bshin_geom_pos_z = (r + l1) * np.cos(-2.03)
+    bshin_pos_x = (r+l0) / (0.046/2 + 0.145) * 0.16
+    bshin_pos_z = (r+l0) / (0.046/2 + 0.145) * -0.25
+    bshin_geom_pos_x = (r+l1) / (0.046/2 + 0.15) * -0.14
+    bshin_geom_pos_z = (r+l1) / (0.046/2 + 0.15) * -0.07
 
-    bfoot_pos_x = (r/2 + 2*l1) * np.sin(-2.03)
-    bfoot_pos_z = (r + 2*l1) * np.cos(-2.03)
-    bfoot_geom_pos_x = -(r + l2) * np.sin(-0.27)
-    bfoot_geom_pos_z = -(r/2 + l2) * np.cos(-0.27)
+    bfoot_pos_x = (r+l1) / (0.046/2 + 0.15) * -0.28
+    bfoot_pos_z = (r+l1) / (0.046/2 + 0.15) * -0.14
+    bfoot_geom_pos_x = (r+l2) / (0.046/2 + 0.094) * 0.03
+    bfoot_geom_pos_z = (r+l2) / (0.046/2 + 0.094) * -0.097
 
     fthight_pos_x = L
-    fthight_geom_pos_x = (r + l3) * np.sin(-0.52)
-    fthight_geom_pos_z = -(r/2 + l3) * np.cos(-0.52)
+    fthight_geom_pos_x = (r+l3) / (0.046/2 + 0.133) * -0.07
+    fthight_geom_pos_z = (r+l3) / (0.046/2 + 0.133)* -0.12
 
-    fshin_pos_x = (r + 2*l3) * np.sin(-0.52)
-    fshin_pos_z = -(r/2 + 2*l3) * np.cos(-0.52)
-    fshin_geom_pos_x = (r/2 + l4) * np.sin(-0.6 - np.pi)
-    fshin_geom_pos_z = (r/2 + l4) * np.cos(-0.6 - np.pi)
+    fshin_pos_x = (r+l3) / (0.046/2 + 0.133) * -0.14
+    fshin_pos_z = (r+l3) / (0.046/2 + 0.133) * -0.24
+    fshin_geom_pos_x = (r+l4) / (0.046/2 + 0.106) * 0.065
+    fshin_geom_pos_z = (r+l4) / (0.046/2 + 0.106) * -0.09
 
-    ffoot_pos_x = -(r + 2*l4) * np.sin(-0.6)
-    ffoot_pos_z = -(r/2 + 2*l4) * np.cos(-0.6)
-    ffoot_geom_pos_x = (r/2 + l5) * np.sin(-0.6 - np.pi)
-    ffoot_geom_pos_z = (r + l5) * np.cos(-0.6 - np.pi)
+    ffoot_pos_x = (r+l4) / (0.046/2 + 0.106) * 0.13
+    ffoot_pos_z = (r+l4) / (0.046/2 + 0.106) * -0.18
+    ffoot_geom_pos_x = (r+l5) / (0.046/2 + 0.07) * 0.045
+    ffoot_geom_pos_z = (r+l5) / (0.046/2 + 0.07) * -0.07
+
+    torso_pos_z = abs(bshin_pos_z + bfoot_pos_z + (d+l2) * np.cos(-0.6-np.pi))
 
     return HALF_CHEETAH.format(
         cam=3 * L / .5,
         dt=dt,
         m=m, g=g, taumax=taumax,
-        L=L, Lh=Lh,
+        L=L, Lh=Lh, d=d,
         l0=l0, l1=l1, l2=l2, l3=l3, l4=l4, l5=l5,
         k0=k0, k1=k1, k2=k2, k3=k3, k4=k4, k5=k5,
         b0=b0, b1=b1, b2=b2, b3=b3, b4=b4, b5=b5,
 
+        torso_pos_z=torso_pos_z,
         head_pos_x=head_pos_x,
+        head_pos_z=head_pos_z,
 
         bthight_pos_x=bthight_pos_x,
         bthight_geom_pos_x=bthight_geom_pos_x,
