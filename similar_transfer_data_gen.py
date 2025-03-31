@@ -24,7 +24,7 @@ def load_original_policy():
         repo_id="farama-minari/HalfCheetah-v5-TQC-expert",
         filename="halfcheetah-v5-TQC-expert.zip",
     )
-    model = TQC.load(halfcheetah_v5_tqc_expert)
+    model = TQC.load(halfcheetah_v5_tqc_expert, device="cpu")
 
     sb3_policy = SB3Policy(
         model,
@@ -53,12 +53,12 @@ def evaluate_policy(context, xml_file, base, nb_episodes):
     observations = np.zeros((nb_episodes, nb_steps, 17))
     actions = np.zeros((nb_episodes, nb_steps, 6))
     rewards = np.zeros((nb_episodes, nb_steps))
-    infos = [ [None] * nb_steps ] * nb_episodes
+    infos = np.full((nb_episodes, nb_steps), None)
 
     for ep in range(nb_episodes):
+        print("ep", ep)
         trunc = False
         step = 0
-        infs = infos[ep]
     
         obs, info = env.reset()
 
@@ -71,7 +71,9 @@ def evaluate_policy(context, xml_file, base, nb_episodes):
             obs, rew, _, trunc, info = env.step(act)
 
             rewards[ep, step] = rew
-            infs[step] = info
+            infos[ep, step] = info
+
+            step += 1
 
     env.close()
 
@@ -107,16 +109,21 @@ if __name__ == "__main__":
     b = 10
     range_1 = (-1, 1)
     range_2 = (-1, 1)
-    range_3 = (-1, 1)
-    num_1 = 2
-    num_2 = 2
-    num_3 = 2
+    range_3 = (0, 0)
+    num_1 = 5
+    num_2 = 5
+    num_3 = 1
 
     nb_eval_episodes = 10
 
     #
     # Other metadata
     #
+    observations_shape = "(nb_episodes, nb_steps, 17)"
+    actions_shape = "(nb_episodes, nb_steps, 6)"
+    rewards_shape = "(nb_episodes, nb_steps)"
+    infos_shape = "(nb_episodes, nb_steps)"
+
     policy_info = {
         "repo_id": "farama-minari/HalfCheetah-v5-TQC-expert",
         "filename": "halfcheetah-v5-TQC-expert.zip",
@@ -190,24 +197,35 @@ if __name__ == "__main__":
     df.attrs["num_2"] = num_2
     df.attrs["num_3"] = num_3
     df.attrs["nb_eval_episodes"] = nb_eval_episodes
+    df.attrs["observations_shape"] = observations_shape
+    df.attrs["actions_shape"] = actions_shape
+    df.attrs["rewards_shape"] = rewards_shape
+    df.attrs["infos_shape"] = infos_shape
     df.attrs["policy_info"] = policy_info
     df.attrs["env"] = env_id
     df.attrs["comment"] = comment
 
     from concurrent.futures import ProcessPoolExecutor
     from tqdm import tqdm
+    import time
 
-    with ProcessPoolExecutor(2) as executor:
+    # start = time.time()
+    with ProcessPoolExecutor(1) as executor:
         pbar = tqdm(total=len(all_contexts))
 
         def worker(c):
             return process_context(c, base, nb_eval_episodes, XML_FILES)
 
+        print("Processing...")
         for index, data in executor.map(worker, all_contexts):
             df.loc[index] = data
             pbar.update()
 
         pbar.close()
+    # stop = time.time()
+    # print(stop-start, "s")
     
-    df.to_pickle(DATA / f"data-similar-{base}-{range_1}-{range_2}-{range_3}-{num_1}-{num_2}-{num_3}-{b}.pkl.gz")
+    memory = df.memory_usage(deep=True).sum()
+    print(f"Pickling {memory / 1e9:.3f} GB of data...")
+    df.to_pickle(DATA / f"data-similar-{str(base)[1:-1].replace(', ', '-')}-{range_1}-{range_2}-{range_3}-{num_1}-{num_2}-{num_3}-{b}.pkl.gz")
     
