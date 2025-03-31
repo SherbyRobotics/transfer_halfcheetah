@@ -55,7 +55,7 @@ HALF_CHEETAH = """<!-- Generated Cheetah Model
     <light cutoff="100" diffuse="1 1 1" dir="-0 0 -1.3" directional="true" exponent="1" pos="0 0 1.3" specular=".1 .1 .1"/>
     <geom conaffinity="1" condim="3" material="MatPlane" name="floor" pos="0 0 0" rgba="0.8 0.9 0.8 1" size="40 40 40" type="plane"/>
     <body name="torso" pos="0 0 {torso_pos_z}">
-      <camera name="track" mode="trackcom" pos="0 -{cam} 0.3" xyaxes="1 0 0 0 0 1"/>
+      <camera name="track" mode="trackcom" pos="0 -{cam_y} {cam_z}" xyaxes="1 0 0 0 0 1"/>
       <!-- <camera name="track" mode="trackcom" pos="0 -3 0.3" xyaxes="1 0 0 0 0 1"/> -->
       <joint armature="0" axis="1 0 0" damping="0" limited="false" name="rootx" pos="0 0 0" stiffness="0" type="slide"/>
       <joint armature="0" axis="0 0 1" damping="0" limited="false" name="rootz" pos="0 0 0" stiffness="0" type="slide"/>
@@ -173,10 +173,11 @@ def make_cheetah(context):
     ffoot_geom_pos_x = (r+l5) / (0.046/2 + 0.07) * 0.045
     ffoot_geom_pos_z = (r+l5) / (0.046/2 + 0.07) * -0.07
 
-    torso_pos_z = abs(bshin_pos_z + bfoot_pos_z + (d+l2) * np.cos(-0.6-np.pi))
+    torso_pos_z = 0.7 * L / 0.5
 
     return HALF_CHEETAH.format(
-        cam=3 * L / .5,
+        cam_y=3 * L / .5,
+        cam_z=.3 * L / .5,
         dt=dt,
         m=m, g=g, taumax=taumax,
         L=L, Lh=Lh, d=d,
