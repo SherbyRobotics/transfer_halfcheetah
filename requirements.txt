@@ -5,6 +5,6 @@ tqdm
 ipykernel
 ipywidgets
 gymnasium[mujoco]
-stable_baselines3
+sb3_contrib
 huggingface_sb3
 pipoli @ git+https://github.com/SherbyRobotics/pipoli

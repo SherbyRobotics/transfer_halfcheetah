@@ -43,12 +43,18 @@ def load_original_policy():
     return original_policy
 
 
-def evaluate_policy(context, xml_file, base, nb_episodes):
-    original_policy = load_original_policy()
+def evaluate_policy(context, xml_file, base, nb_episodes, original_policy):
     policy = original_policy.to_scaled(context, base)
 
     nb_steps = 1000
-    env = gym.make("HalfCheetah-v5", xml_file=xml_file)
+    forward_weight = context.value("forward_reward_weight")
+    ctrl_weight = context.value("ctrl_cost_weight")
+    env = gym.make(
+        "HalfCheetah-v5",
+        xml_file=xml_file,
+        forward_reward_weight=forward_weight,
+        ctrl_cost_weight=ctrl_weight,
+    )
 
     observations = np.zeros((nb_episodes, nb_steps, 17))
     actions = np.zeros((nb_episodes, nb_steps, 6))
@@ -80,7 +86,7 @@ def evaluate_policy(context, xml_file, base, nb_episodes):
     return observations, actions, rewards, infos
 
 
-def process_context(context, base, nb_episodes, xml_dir):
+def process_context(context, base, nb_episodes, xml_dir, original_policy):
     b1 = context.value(base[0])
     b2 = context.value(base[1])
     b3 = context.value(base[2])
@@ -90,7 +96,7 @@ def process_context(context, base, nb_episodes, xml_dir):
     xml_file = Path(xml_dir) / (index + ".xml")
     xml_file.write_text(xml)
 
-    evaluation = evaluate_policy(context, str(xml_file.absolute()), base, nb_episodes)
+    evaluation = evaluate_policy(context, str(xml_file.absolute()), base, nb_episodes, original_policy)
     
     return index, (context, xml, b1, b2, b3) + evaluation
 
@@ -110,8 +116,8 @@ if __name__ == "__main__":
     range_1 = (-1, 1)
     range_2 = (-1, 1)
     range_3 = (0, 0)
-    num_1 = 5
-    num_2 = 5
+    num_1 = 10
+    num_2 = 10
     num_3 = 1
 
     nb_eval_episodes = 10
@@ -130,8 +136,10 @@ if __name__ == "__main__":
         "commit": "995505a"
     }
     env_id = "HalfCheetah-v5"
-    comment = "the env is default, except for xml_file"
-
+    comment = """env has custom xml_file, forward_reward_weight and ctrl_cost_weight supplied by the context
+to make the reward function of the env dimensionally homogeneous, it is assumed that the weight's dimensions are such that [reward] = 1
+all the contexts are similar
+the policy was scaled (scaled transfer)"""
     #
     # Original context instanciation
     #
@@ -163,10 +171,14 @@ if __name__ == "__main__":
             ("b3", M*L**2/T, 4.5),
             ("b4", M*L**2/T, 3),
             ("b5", M*L**2/T, 1.5),
+            ("forward_reward_weight", T/L, 1),
+            ("ctrl_cost_weight", T**4/M**2/L**4, 0.1),
         )
     )
     original_cheetah_file = make_cheetah_xml(original_context, "original", outdir=XML_FILES)
     original_cheetah_xml = Path(original_cheetah_file).read_text()
+
+    original_policy = load_original_policy()
 
     #
     # Make all contexts
@@ -205,25 +217,27 @@ if __name__ == "__main__":
     df.attrs["env"] = env_id
     df.attrs["comment"] = comment
 
-    from concurrent.futures import ProcessPoolExecutor
     from tqdm import tqdm
     import time
 
-    # start = time.time()
-    with ProcessPoolExecutor(1) as executor:
-        pbar = tqdm(total=len(all_contexts))
+    print("Original context evaluation...")
+    pbar = tqdm(total=len(all_contexts) + 1)
 
-        def worker(c):
-            return process_context(c, base, nb_eval_episodes, XML_FILES)
+    _, data = process_context(original_context, base, nb_eval_episodes, XML_FILES, original_policy)
+    df.loc["original"] = data
+    pbar.update()
+    
+    def worker(c):
+        return process_context(c, base, nb_eval_episodes, XML_FILES, original_policy)
 
-        print("Processing...")
-        for index, data in executor.map(worker, all_contexts):
-            df.loc[index] = data
-            pbar.update()
+    print("Evaluating other contexts...")
+    for index, data in map(worker, all_contexts):
+        df.loc[index] = data
+        pbar.update()
 
-        pbar.close()
-    # stop = time.time()
-    # print(stop-start, "s")
+    pbar.close()
+# stop = time.time()
+# print(stop-start, "s")
     
     memory = df.memory_usage(deep=True).sum()
     print(f"Pickling {memory / 1e9:.3f} GB of data...")
