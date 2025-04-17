@@ -38,7 +38,7 @@ HALF_CHEETAH = """<!-- Generated Cheetah Model
 <mujoco model="cheetah">
   <compiler angle="radian" coordinate="local" inertiafromgeom="true" settotalmass="{m}"/>
   <default>
-    <joint armature=".1" damping=".01" limited="true" solimplimit="0 .8 .03" solreflimit=".02 1" stiffness="8"/>
+    <joint armature="{armature}" damping="{damping}" limited="true" solimplimit="0 .8 .03" solreflimit=".02 1" stiffness="{stiffness}"/>
     <geom conaffinity="0" condim="3" contype="1" friction=".4 .1 .1" rgba="0.8 0.6 .4 1" solimp="0.0 0.8 0.01" solref="0.02 1"/>
     <motor ctrllimited="true" ctrlrange="-{taumax} {taumax}"/>
   </default>
@@ -114,6 +114,9 @@ def make_cheetah(context):
     m = context.value("m")
     g = context.value("g")
     taumax = context.value("taumax")
+    armature = context.value("armature")
+    damping = context.value("damping")
+    stiffness = context.value("stiffness")
 
     L = context.value("L")
     Lh = context.value("Lh")
@@ -180,6 +183,7 @@ def make_cheetah(context):
         cam_z=.3 * L / .5,
         dt=dt,
         m=m, g=g, taumax=taumax,
+        armature=armature, damping=damping, stiffness=stiffness,
         L=L, Lh=Lh, d=d,
         l0=l0, l1=l1, l2=l2, l3=l3, l4=l4, l5=l5,
         k0=k0, k1=k1, k2=k2, k3=k3, k4=k4, k5=k5,

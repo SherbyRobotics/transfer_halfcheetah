@@ -63,7 +63,7 @@ def evaluate_policy(context, xml_file, base, nb_episodes, original_policy):
     infos = np.full((nb_episodes, nb_steps), None)
 
     for ep in range(nb_episodes):
-        print("ep", ep)
+        # print("ep", ep)
         trunc = False
         step = 0
     
@@ -112,11 +112,10 @@ if __name__ == "__main__":
     #
     base = ["m", "L", "g"]  # NOTE the rest of the code assumes ["m", "L", "g"], adjust b1, b2 and b3 accordingly
 
-    space = "log"
-    b = 10
-    range_1 = (-1, 1)
-    range_2 = (-1, 1)
-    range_3 = (0, 0)
+    space = "geom"
+    range_1 = (.1, 10)
+    range_2 = (.1, 10)
+    range_3 = (1, 1)
     num_1 = 50
     num_2 = 50
     num_3 = 1
@@ -172,6 +171,9 @@ the policy was scaled (scaled transfer)"""
             ("b3", M*L**2/T, 4.5),
             ("b4", M*L**2/T, 3),
             ("b5", M*L**2/T, 1.5),
+            ("armature", M*L**2, 0.1),
+            ("damping", M*L**2/T, 0.01),
+            ("stiffness", M*L**2/T**2, 8),
             ("forward_reward_weight", T/L, 1),
             ("ctrl_cost_weight", T**4/M**2/L**4, 0.1),
         )
@@ -184,9 +186,10 @@ the policy was scaled (scaled transfer)"""
     #
     # Make all contexts
     #
-    b1s = np.logspace(*range_1, base=b, num=num_1) * original_context.value(base[0])
-    b2s = np.logspace(*range_2, base=b, num=num_2) * original_context.value(base[1])
-    b3s = np.logspace(*range_3, base=b, num=num_3) * original_context.value(base[2])
+    rangespace = np.geomspace if space == "geom" else np.linspace
+    b1s = rangespace(*range_1, num=num_1) * original_context.value(base[0])
+    b2s = rangespace(*range_2, num=num_2) * original_context.value(base[1])
+    b3s = rangespace(*range_3, num=num_3) * original_context.value(base[2])
 
     all_contexts = []
 
@@ -221,6 +224,11 @@ the policy was scaled (scaled transfer)"""
                         ("b3", M*L**2/T, 4.5),
                         ("b4", M*L**2/T, 3),
                         ("b5", M*L**2/T, 1.5),
+                        ("armature", M*L**2, 0.1),
+                        ("damping", M*L**2/T, 0.01),
+                        ("stiffness", M*L**2/T**2, 8),  
+                        ("forward_reward_weight", T/L, 1),
+                        ("ctrl_cost_weight", T**4/M**2/L**4, 0.1),
                     )
                 )
                 all_contexts.append(context)
@@ -231,7 +239,6 @@ the policy was scaled (scaled transfer)"""
     df = pd.DataFrame(columns=["context", "xml", "b1", "b2", "b3", "observations", "actions", "rewards", "infos"])
     df.attrs["base"] = base
     df.attrs["space"] = space
-    df.attrs["b"] = b
     df.attrs["range_1"] = range_1
     df.attrs["range_2"] = range_2
     df.attrs["range_3"] = range_3
@@ -249,6 +256,8 @@ the policy was scaled (scaled transfer)"""
 
     from tqdm import tqdm
     import time
+
+    print("Non similar scaled transfer data generation\n")
 
     print("Original context evaluation...")
     pbar = tqdm(total=len(all_contexts) + 1)
@@ -271,5 +280,5 @@ the policy was scaled (scaled transfer)"""
     
     memory = df.memory_usage(deep=True).sum()
     print(f"Pickling {memory / 1e9:.3f} GB of data...")
-    df.to_pickle(DATA / f"data-non-similar-{str(base)[1:-1].replace(', ', '-')}-{range_1}-{range_2}-{range_3}-{num_1}-{num_2}-{num_3}-{b}.pkl.gz")
+    df.to_pickle(DATA / f"data-non-similar-{str(base)[1:-1].replace(', ', '-')}-{space}-{range_1}-{range_2}-{range_3}-{num_1}-{num_2}-{num_3}.pkl.gz")
     
