@@ -38,8 +38,8 @@ HALF_CHEETAH = """<!-- Generated Cheetah Model
 <mujoco model="cheetah">
   <compiler angle="radian" coordinate="local" inertiafromgeom="true" settotalmass="{m}"/>
   <default>
-    <joint armature="{armature}" damping="{damping}" limited="true" solimplimit="0 .8 .03" solreflimit=".02 1" stiffness="{stiffness}"/>
-    <geom conaffinity="0" condim="3" contype="1" friction=".4 .1 .1" rgba="0.8 0.6 .4 1" solimp="0.0 0.8 0.01" solref="0.02 1"/>
+    <joint armature="{armature}" damping="{damping}" limited="true" solimplimit="0 .8 {solimplimit_3}" solreflimit="{solreflimit_1} 1" stiffness="{stiffness}"/>
+    <geom conaffinity="0" condim="3" contype="1" friction=".4 .1 .1" rgba="0.8 0.6 .4 1" solimp="0.0 0.8 {solimp_3}" solref="{solref_1} 1"/>
     <motor ctrllimited="true" ctrlrange="-{taumax} {taumax}"/>
   </default>
   <size nstack="300000" nuser_geom="1"/>
@@ -117,6 +117,10 @@ def make_cheetah(context):
     armature = context.value("armature")
     damping = context.value("damping")
     stiffness = context.value("stiffness")
+    solref_1 = context.value("timeconst")
+    solreflimit_1 = context.value("timeconst_limit")
+    solimp_3 = context.value("solimp_width")
+    solimplimit_3 = context.value("solimplimit_limit")
 
     L = context.value("L")
     Lh = context.value("Lh")
@@ -188,6 +192,11 @@ def make_cheetah(context):
         l0=l0, l1=l1, l2=l2, l3=l3, l4=l4, l5=l5,
         k0=k0, k1=k1, k2=k2, k3=k3, k4=k4, k5=k5,
         b0=b0, b1=b1, b2=b2, b3=b3, b4=b4, b5=b5,
+
+        solref_1=solref_1,
+        solreflimit_1=solreflimit_1,
+        solimp_3=solimp_3,
+        solimplimit_3=solimplimit_3,
 
         torso_pos_z=torso_pos_z,
         head_pos_x=head_pos_x,
