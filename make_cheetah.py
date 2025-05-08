@@ -117,10 +117,10 @@ def make_cheetah(context):
     armature = context.value("armature")
     damping = context.value("damping")
     stiffness = context.value("stiffness")
-    solref_1 = context.value("timeconst")
-    solreflimit_1 = context.value("timeconst_limit")
-    solimp_3 = context.value("solimp_width")
-    solimplimit_3 = context.value("solimplimit_limit")
+    solref_1 = .00002  # timeconst orig .02
+    solreflimit_1 = .00002  # timeconst limit orig .02
+    solimp_3 = .00001  # width .01
+    solimplimit_3 = .00003  # width limit .03
 
     L = context.value("L")
     Lh = context.value("Lh")
