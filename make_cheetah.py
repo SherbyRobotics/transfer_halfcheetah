@@ -117,6 +117,7 @@ def make_cheetah(context):
     armature = context.value("armature")
     damping = context.value("damping")
     stiffness = context.value("stiffness")
+
     solref_1 = .00002  # timeconst orig .02
     solreflimit_1 = .00002  # timeconst limit orig .02
     solimp_3 = .00001  # width .01
@@ -181,6 +182,10 @@ def make_cheetah(context):
     ffoot_geom_pos_z = (r+l5) / (0.046/2 + 0.07) * -0.07
 
     torso_pos_z = 0.7 * L / 0.5
+    # torso_pos_z = max(
+    #     abs(bthight_geom_pos_z + bshin_geom_pos_z + bfoot_geom_pos_z - 2 * l3),
+    #     abs(fthight_geom_pos_z + fshin_geom_pos_z + ffoot_geom_pos_z - 2 * l5),
+    # )
 
     return HALF_CHEETAH.format(
         cam_y=3 * L / .5,
