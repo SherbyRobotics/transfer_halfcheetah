@@ -99,17 +99,17 @@ HALF_CHEETAH = """<!-- Generated Cheetah Model
   </actuator>
 </mujoco>"""
 
-def make_cheetah_xml(context, name="context", outdir="./output") -> str:
+def make_cheetah_xml(context, torso_pos_z=None, name="context", outdir="./output") -> str:
     output = Path(outdir)
     output.mkdir(exist_ok=True)
 
-    cheetah_xml_content = make_cheetah(context)
+    cheetah_xml_content = make_cheetah(context, torso_pos_z)
     cheetah_xml = output / f"cheetah-{name}.xml"
     cheetah_xml.write_text(cheetah_xml_content)
 
     return str(cheetah_xml.absolute())
 
-def make_cheetah(context):
+def make_cheetah(context, torso_pos_z=None):
     dt = context.value("dt")
     m = context.value("m")
     g = context.value("g")
@@ -181,7 +181,8 @@ def make_cheetah(context):
     ffoot_geom_pos_x = (r+l5) / (0.046/2 + 0.07) * 0.045
     ffoot_geom_pos_z = (r+l5) / (0.046/2 + 0.07) * -0.07
 
-    torso_pos_z = 0.7 * L / 0.5
+    if torso_pos_z is None:
+      torso_pos_z = 0.7 * L / 0.5
     # torso_pos_z = max(
     #     abs(bthight_geom_pos_z + bshin_geom_pos_z + bfoot_geom_pos_z - 2 * l3),
     #     abs(fthight_geom_pos_z + fshin_geom_pos_z + ffoot_geom_pos_z - 2 * l5),
